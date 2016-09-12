@@ -22,20 +22,29 @@ xp = cuda.cupy if args.gpu >= 0 else np
 
 # Prepare model
 print(args.arch)
-if args.arch == 'alexnet':
+arch = args.arch.split('_')
+if arch[0] == 'alexnet':
     import alex
-    model = alex.Alex()
-elif args.arch == 'googlenet':
+    model = alex.Alex
+elif arch[0] == 'googlenet':
     import googlenet
-    model = googlenet.GoogLeNet()
-elif args.arch == 'vgga':
+    model = googlenet.GoogLeNet
+elif arch[0] == 'vgga':
     import vgga
-    model = vgga.vgga()
-elif args.arch == 'overfeat':
+    model = vgga.vgga
+elif arch[0] == 'overfeat':
     import overfeat
-    model = overfeat.overfeat()
+    model = overfeat.overfeat
 else:
     raise ValueError('Invalid architecture name')
+
+if len(arch) == 1:
+    dtype = np.float32
+elif len(arch) == 2 and arch[1] == 'fp16':
+    dtype = np.float16
+else:
+    raise ValueError('Invalid architecture name')
+model = model(dtype)
 
 if args.gpu >= 0:
     cuda.get_device(args.gpu).use()
